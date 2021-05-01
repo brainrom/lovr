@@ -30,8 +30,6 @@
 #define COUNTOF(x) (sizeof(x) / sizeof(x[0]))
 #define CHECK_SIZEOF(T) int(*_o)[sizeof(T)]=1
 
-typedef struct Color { float r, g, b, a; } Color;
-
 // Error handling
 typedef void errorFn(void*, const char*, va_list);
 extern LOVR_THREAD_LOCAL errorFn* lovrErrorCallback;
