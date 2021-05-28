@@ -61,7 +61,10 @@ SRC_@(TIMER) += src/api/l_timer*.c
 RES += src/resources/boot.lua
 RES += src/resources/VarelaRound.ttf
 RES_@(OPENVR) += src/resources/*.json
-SRC_@(GRAPHICS) += src/resources/shaders.c
+
+: foreach src/resources/*.vert |> glslangValidator -V --vn lovr_shader_%B_vert -o %o %f |> %f.h
+: foreach src/resources/*.frag |> glslangValidator -V --vn lovr_shader_%B_frag -o %o %f |> %f.h
+: src/resources/*.vert.h src/resources/*.frag.h |> cat %f | sed '/\/\//d' | sed '/#/d' > %o |> src/resources/shaders.h
 
 ## build:
 # 1 [XD] resources -> bin headers
