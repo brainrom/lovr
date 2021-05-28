@@ -164,6 +164,14 @@ function lovr.boot()
     end
   end
 
+  if conf.window then
+    lovr.system.openWindow(conf.window)
+  end
+
+  if lovr.graphics then
+    lovr.graphics.init()
+  end
+
   if lovr.headset and lovr.graphics and conf.window then
     local ok, result = pcall(lovr.headset.init)
     if not ok then
@@ -248,7 +256,7 @@ function lovr.errhand(message, traceback)
       lovr.headset.update(0)
       lovr.headset.renderTo(render)
     end
-    if lovr.graphics.hasWindow() then
+    if lovr.system.isWindowOpen() then
       lovr.graphics.setViewPose(1)
       local width, height = lovr.graphics.getDimensions()
       local projection = lovr.math.mat4():perspective(.1, 100, math.rad(67), width / height)
