@@ -11,3 +11,4 @@ plugins
 Activity*.java
 AndroidManifest*.xml
 deps/OpenXR-Oculus
+src/resources/shaders.h
