@@ -16,29 +16,13 @@
 #include <GLES3/gl3.h>
 #include <android/log.h>
 #include <jni.h>
+#include <lua.h>
 
 // Platform
 
 static struct {
   fn_permission* onPermissionEvent;
 } os;
-
-bool os_init() {
-  os_open_console();
-  return true;
-}
-
-void os_destroy() {
-  //
-}
-
-const char* os_get_name() {
-  return "Android";
-}
-
-uint32_t os_get_core_count() {
-  return sysconf(_SC_NPROCESSORS_ONLN);
-}
 
 // To make regular printing work, a thread makes a pipe and redirects stdout and stderr to the write
 // end of the pipe.  The read end of the pipe is forwarded to __android_log_write.
@@ -61,144 +45,6 @@ static void* log_main(void* data) {
     __android_log_write(ANDROID_LOG_DEBUG, "LOVR", buffer);
   }
   return 0;
-}
-
-void os_open_console() {
-  pthread_create(&logState.thread, NULL, log_main, logState.handles);
-  pthread_detach(logState.thread);
-}
-
-#define NS_PER_SEC 1000000000ULL
-
-double os_get_time() {
-  struct timespec t;
-  clock_gettime(CLOCK_MONOTONIC, &t);
-  return (double) t.tv_sec + (t.tv_nsec / (double) NS_PER_SEC);
-}
-
-void os_sleep(double seconds) {
-  seconds += .5e-9;
-  struct timespec t;
-  t.tv_sec = seconds;
-  t.tv_nsec = (seconds - t.tv_sec) * NS_PER_SEC;
-  while (nanosleep(&t, &t));
-}
-
-JNIEXPORT void JNICALL Java_org_lovr_app_Activity_lovrPermissionEvent(JNIEnv* jni, jobject activity, jint permission, jboolean granted) {
-  if (os.onPermissionEvent) {
-    os.onPermissionEvent(permission, granted);
-  }
-}
-
-void os_request_permission(Permission permission) {
-  // TODO
-}
-
-void os_poll_events() {
-  //
-}
-
-void os_on_quit(fn_quit* callback) {
-  //
-}
-
-void os_on_focus(fn_focus* callback) {
-  //
-}
-
-void os_on_resize(fn_resize* callback) {
-  //
-}
-
-void os_on_key(fn_key* callback) {
-  //
-}
-
-void os_on_text*(fn_text* callback) {
-  // TODO
-}
-
-void os_on_permission(fn_permission* callback) {
-  os.onPermissionEvent = callback;
-}
-
-bool os_window_open(const WindowFlags* flags) {
-  return true;
-}
-
-bool os_window_is_open() {
-  return false;
-}
-
-void os_window_get_size(int* width, int* height) {
-  if (width) *width = 0;
-  if (height) *height = 0;
-}
-
-void os_window_get_fbsize(int* width, int* height) {
-  *width = 0;
-  *height = 0;
-}
-
-void os_window_set_vsync(int interval) {
-  //
-}
-
-void os_window_swap() {
-  //
-}
-
-void* os_get_gl_proc_address(const char* function) {
-  return (void*) eglGetProcAddress(function);
-}
-
-size_t os_get_home_directory(char* buffer, size_t size) {
-  return 0;
-}
-
-size_t os_get_data_directory(char* buffer, size_t size) {
-  buffer[0] = '\0';
-  return 0;
-}
-
-size_t os_get_working_directory(char* buffer, size_t size) {
-  return getcwd(buffer, size) ? strlen(buffer) : 0;
-}
-
-size_t os_get_executable_path(char* buffer, size_t size) {
-  ssize_t length = readlink("/proc/self/exe", buffer, size - 1);
-  if (length >= 0) {
-    buffer[length] = '\0';
-    return length;
-  } else {
-    return 0;
-  }
-}
-
-static char apkPath[1024];
-size_t os_get_bundle_path(char* buffer, size_t size, const char** root) {
-  size_t length = strlen(apkPath);
-  if (length >= size) return 0;
-  memcpy(buffer, apkPath, length);
-  buffer[length] = '\0';
-    *root = "/assets";
-  return length;
-}
-
-void os_get_mouse_position(double* x, double* y) {
-  *x = *y = 0.;
-}
-
-void os_set_mouse_mode(os_mouse_mode mode) {
-  //
-}
-
-bool os_is_mouse_down(os_mouse_button button) {
-  return false;
-}
-
-bool os_is_key_down(os_key key) {
-  return false;
 }
 
 // Headset backend
@@ -239,6 +85,10 @@ static bool pico_init(float supersample, float offset, uint32_t msaa, bool overl
   state.clipNear = .1f;
   state.clipFar = 100.f;
   return true;
+}
+
+static void pico_start(void) {
+  //
 }
 
 static void pico_destroy(void) {
@@ -465,7 +315,7 @@ static void lovrPicoBoot(void) {
 
   lua_getglobal(L, "package");
   lua_getfield(L, -1, "preload");
-  luax_register(L, lovrModules);
+  //luax_register(L, lovrModules);
   lua_pop(L, 2);
 
   lua_pushcfunction(L, luax_getstack);
@@ -483,15 +333,15 @@ static void lovrPicoBoot(void) {
 }
 
 JNIEXPORT void JNICALL Java_org_lovr_app_Activity_lovrPicoOnCreate(JNIEnv* jni, jobject activity, jstring apk) {
-  const char* path = (*jni)->GetStringUTFChars(jni, apk, NULL);
+  /*const char* path = (*jni)->GetStringUTFChars(jni, apk, NULL);
   size_t length = strlen(path);
   if (length < sizeof(apkPath)) {
     memcpy(apkPath, path, length);
-  }
+  }*/
   lovrPicoBoot();
 }
 
-JNIEXPORT void JNICALL Java_org_lovr_app_Activity_lovrPicoSetDisplayDimensions(JNIEnv* jni, jobject activity, int width, int height) {
+/*JNIEXPORT void JNICALL Java_org_lovr_app_Activity_lovrPicoSetDisplayDimensions(JNIEnv* jni, jobject activity, int width, int height) {
   state.displayWidth = width;
   state.displayHeight = height;
 }
@@ -604,3 +454,4 @@ JNIEXPORT void JNICALL Java_org_lovr_app_Activity_lovrPicoDrawEye(JNIEnv* jni, j
   state.renderCallback(state.renderUserdata);
   lovrGraphicsSetBackbuffer(NULL, false, false);
 }
+*/

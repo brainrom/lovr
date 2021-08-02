@@ -13,7 +13,7 @@ import com.picovr.cvclient.CVControllerManager;
 import com.picovr.picovrlib.cvcontrollerclient.ControllerClient;
 import com.psmart.vrlib.PicovrSDK;
 
-public class Activity extends VRActivity implements RenderInterface, CVControllerListener {
+public class Activity extends VRActivity implements RenderInterface, CVControllerListener{
   CVControllerManager controllerManager;
   boolean controllersActive;
 
@@ -50,6 +50,11 @@ public class Activity extends VRActivity implements RenderInterface, CVControlle
   public void initGL(int width, int height) {
     lovrPicoSetDisplayDimensions(width, height);
   }
+  
+  public void deInitGL() {
+    //
+  }
+
 
   public void onFrameBegin(HmdState state) {
     if (controllersActive) {
