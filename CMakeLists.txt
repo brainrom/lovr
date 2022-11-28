@@ -77,6 +77,13 @@ if(NOT ANDROID AND LOVR_BUILD_SHARED)
   set(LOVR_BUILD_EXE OFF)
 endif()
 
+set(LOVR_INCLUDE
+${CMAKE_CURRENT_SOURCE_DIR}/src
+${CMAKE_CURRENT_SOURCE_DIR}/src/modules
+${CMAKE_CURRENT_SOURCE_DIR}/src/lib/stdatomic
+${CMAKE_CURRENT_SOURCE_DIR}/etc
+)
+
 # GLFW
 if(NOT (EMSCRIPTEN OR ANDROID))
   if(LOVR_SYSTEM_GLFW)
@@ -347,12 +354,7 @@ endif()
 set_target_properties(lovr PROPERTIES C_STANDARD 11)
 set_target_properties(lovr PROPERTIES C_STANDARD_REQUIRED ON)
 
-target_include_directories(lovr PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/modules
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/stdatomic
-  ${CMAKE_CURRENT_SOURCE_DIR}/etc
-)
+target_include_directories(lovr PRIVATE ${LOVR_INCLUDE})
 
 target_link_libraries(lovr
   ${LOVR_GLFW}
